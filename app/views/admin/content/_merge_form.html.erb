@@ -1,0 +1,8 @@
+<h4>Merge Articles</h4>
+  <div class=''>
+    <%= form_tag :controller => admin_content_path, :action => 'merge', :method => 'post' ,:id => @article.id do %>
+       <%= label_tag :merge_with, "Article: " %>
+       <%= text_field_tag 'merge_with' %>  
+       <%= submit_tag "Merge", :id => 'merge'  %>
+    <% end %>
+  </div>
