@@ -276,3 +276,18 @@ end
 Then /^show me the page$/ do
   save_and_open_page
 end
+
+Given /am not an admin$/ do
+  visit '/accounts/login'
+  fill_in 'user_login', :with => 'reader'
+  fill_in 'user_password', :with => 'reader_pw'
+  click_button 'Login'
+end
+
+And /^I am an admin$/ do
+  visit '/accounts/login'
+  fill_in 'user_login', :with => 'administrator'
+  fill_in 'user_password', :with => 'administrator_pw'
+  click_button 'Login'
+end
+

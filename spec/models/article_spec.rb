@@ -628,7 +628,69 @@ describe Article do
         article.should be == already_exist_article
       end
     end
+  end  
+    
+  describe '#merge' do
+    before :each do
+      Factory(:blog)        
+    end
+  
+    
+    it 'should not be able to merge article to itself' do
+      article_one = Article.new(:id =>1, :author =>'Jeff',:title => 'Article One',:body => 'This is the first Article') 
+      article_two = Article.new(:id =>2, :author =>'John',:title => 'Article Two',:body => 'This is the second Article') 
+      article_one.save!
+      article_two.save!
+      article_one.merge(article_one.id).should == false
+    end
+    
+    it 'should have one author' do
+      article_one = Article.new(:id =>1, :author =>'Jeff',:title => 'Article One',:body => 'This is the first Article') 
+      article_two = Article.new(:id =>2, :author =>'John',:title => 'Article Two',:body => 'This is the second Article') 
+      article_one.save!
+      article_two.save!
+      article_one.merge(article_two.id)
+      article_one.author.should satisfy{|x| ['John','Jeff'].include?(x)}
+    end     
+    
+    it 'should have one title' do
+      article_one = Article.new(:id =>1, :author =>'Jeff',:title => 'Article One',:body => 'This is the first Article') 
+      article_two = Article.new(:id =>2, :author =>'John',:title => 'Article Two',:body => 'This is the second Article') 
+      article_one.save!
+      article_two.save!
+      article_one.merge(article_two.id)
+      article_one.title.should satisfy{|x| ['Article One', 'Article Two'].include?(x)}
+    end
+    it 'should contain text of both articles' do
+      article_one = Article.new(:id =>1, :author =>'Jeff',:title => 'Article One',:body => 'This is the first Article') 
+      article_two = Article.new(:id =>2, :author =>'John',:title => 'Article Two',:body => 'This is the second Article') 
+      article_one.save!
+      article_two.save!
+      article_one.merge(article_two.id)
+      article_one.body.should include('This is the first Article','This is the second Article')
 
+    end
+    it 'merged article should be destroyed' do
+      article_one = Article.new(:id =>1, :author =>'Jeff',:title => 'Article One',:body => 'This is the first Article') 
+      article_two = Article.new(:id =>2, :author =>'John',:title => 'Article Two',:body => 'This is the second Article') 
+      article_one.save!
+      article_two.save!
+      article_one.merge(article_two.id)
+      Article.find_by_id(article_two.id).should == nil     
+    end
+  
+    it 'should merge comments' do
+      article_one = Article.new(:id =>1, :author =>'Jeff',:title => 'Article One',:body => 'This is the first Article') 
+      article_two = Article.new(:id =>2, :author =>'John',:title => 'Article Two',:body => 'This is the second Article') 
+      article_one.save!
+      article_two.save!
+      3.times{ Factory(:comment, :article => article_one)}
+      2.times{ Factory(:comment, :article => article_two)}
+      article_one_comments = article_one.comments
+      article_two_comments = article_two.comments
+      article_one.merge(article_two.id)
+      article_one.comments.should include(*article_one_comments, *article_two_comments)
+    end
   end
 end
 

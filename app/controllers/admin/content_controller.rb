@@ -37,6 +37,21 @@ class Admin::ContentController < Admin::BaseController
     new_or_edit
   end
 
+  def merge
+    @article = Article.find_by_id(params[:id])
+    if !current_user.admin?
+      flash[:error] = "Cannot merge. You are not an Admin."
+    elsif (@article.merge(params[:merge_with]))
+      flash[:notice] = "Articles merged."
+    elsif(@article.merge(Article.find_by_title(params[:merge_with]).id.to_s))
+      flash[:notice] = "Articles merged."
+    else
+      flash[:error] = "Articles could not be merged."
+    end
+    
+    redirect_to "/admin/content/edit/#{params[:id]}"
+  end
+  
   def destroy
     @record = Article.find(params[:id])
 
@@ -140,6 +155,7 @@ class Admin::ContentController < Admin::BaseController
   def real_action_for(action); { 'add' => :<<, 'remove' => :delete}[action]; end
 
   def new_or_edit
+    @can_merge = (current_user.admin? and params[:action == 'edit'])
     id = params[:id]
     id = params[:article][:id] if params[:article] && params[:article][:id]
     @article = Article.get_or_build_article(id)

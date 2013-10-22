@@ -70,6 +70,24 @@ class Article < Content
       self.settings = {}
     end
   end
+  
+  def merge(merge_id)
+    
+    if((Article.exists?(merge_id)) and (merge_id != self.id))
+      @merge_article = Article.find_by_id(merge_id)
+      self.body += @merge_article.body
+      @merge_article.comments.each do |comment|
+        self.comments << comment
+      end
+      
+      self.save!
+      Article.delete(merge_id)
+      
+      return true
+    else
+      return false
+    end
+  end
 
   def set_permalink
     return if self.state == 'draft'
